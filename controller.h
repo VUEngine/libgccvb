@@ -1,5 +1,5 @@
-#ifndef _LIBGCCVB_KEYPAD_H
-#define _LIBGCCVB_KEYPAD_H
+#ifndef _LIBGCCVB_CONTROLLER_H
+#define _LIBGCCVB_CONTROLLER_H
 
 
 #include "types.h"
