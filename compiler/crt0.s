@@ -6,20 +6,20 @@
  pointers
  *************************************************/
 
-.global _key_vector
-_key_vector = 0x0500FFC0
+.global _keyVector
+_keyVector = 0x0500FFC0
 
-.global _tim_vector
-_tim_vector = 0x0500FFC4
+.global _timVector
+_timVector = 0x0500FFC4
 
-.global _cro_vector
-_cro_vector = 0x0500FFC8
+.global _croVector
+_croVector = 0x0500FFC8
 
-.global _com_vector
-_com_vector = 0x0500FFCC
+.global _comVector
+_comVector = 0x0500FFCC
 
-.global _vpu_vector
-_vpu_vector = 0x0500FFD0
+.global _vipVector
+_vipVector = 0x0500FFD0
 
 
 
@@ -36,76 +36,125 @@ wait_for_wram_loop:
 	add		-1, r6
 	bnz		wait_for_wram_loop
 
-/* dummy SRAM reads */
-	movhi   hi(__sram_start), r0, r1
-	movea   lo(__sram_start), r1, r1
-    movea	0x00C0,           r0, r6
-sram_dummy_loop:
-	ld.b    0[r1], r7
-	add	    2,     r1
-	add		-1,    r6
-	bnz		sram_dummy_loop
+/* dummy reads */
+	movhi	hi(__data_start),   r0, r7
+	movea	lo(__data_start),   r7, r7
+	movea	0x0008, 			r0, r8
+dummy_read_cycle:
+	ld.b	0[r7], r9
+	add	    1,     r7
+	cmp	    r8,    r7
+	blt	    dummy_read_cycle
 
 /* initiallize .data section */
-	movhi	hi(__data_start), r0, r7
-	movea	lo(__data_start), r7, r7
-	movhi	hi(__data_end),   r0, r1
-	movea	lo(__data_end),   r1, r1
-	movhi	hi(__data_vma),   r0, r6
-	movea	lo(__data_vma),   r6, r6
+	movhi	hi(__data_lma), 	r0, r6
+	movea	lo(__data_lma), 	r6, r6
+	movhi	hi(__data_start),   r0, r7
+	movea	lo(__data_start),   r7, r7
+	movhi	hi(__data_end),		r0, r8
+	movea	lo(__data_end),		r8, r8
 	jr	    end_init_data
 
 top_init_data:
-	ld.b	0[r7], r8
-	st.b	r8,    0[r6]
-	add	    1,     r7
+	ld.b	0[r6], r9
+	st.b	r9,    0[r7]
 	add	    1,     r6
+	add	    1,     r7
 end_init_data:
-	cmp	    r1,    r6
+	cmp	    r8,    r7
 	blt	    top_init_data
 
-/* clear .bss section and unintialized RAM */
-	movhi	hi(__bss_start), r0, r1
-	movea	lo(__bss_start), r1, r1
+/* initiallize .dram_data section */
+	movhi	hi(__dram_data_start), r0, r7
+	movea	lo(__dram_data_start), r7, r7
+	movhi	hi(__dram_data_end),   r0, r8
+	movea	lo(__dram_data_end),   r8, r8
+	jr	    end_init_dram_data
+
+top_init_dram_data:
+	ld.b	0[r6], r9
+	st.b	r9,    0[r7]
+	add	    1,     r6
+	add	    1,     r7
+end_init_dram_data:
+	cmp	    r8,    r7
+	blt	    top_init_dram_data
+
+/* initiallize .sram_data section */
+	movhi	hi(__sram_data_start), r0, r7
+	movea	lo(__sram_data_start), r7, r7
+	movhi	hi(__sram_data_end),   r0, r8
+	movea	lo(__sram_data_end),   r8, r8
+	jr	    end_init_sram_data
+
+top_init_sram_data:
+	ld.b	0[r6], r9
+	st.b	r9,    0[r7]
+	add	    1,     r6
+	add	    1,     r7
+end_init_sram_data:
+	cmp	    r8,    r7
+	blt	    top_init_sram_data
+
+/* clear .bss section */
+	movhi	hi(__bss_start), r0, r6
+	movea	lo(__bss_start), r6, r6
 	movhi	hi(__bss_end),   r0, r7
 	movea	lo(__bss_end),   r7, r7
 	jr	    end_init_bss
 top_init_bss:
-	st.h	r0, 0[r1]
-	add	    1,  r1
+	st.h	r0, 0[r6]
+	add	    1,  r6
 end_init_bss:
-	cmp	    r7, r1
+	cmp	    r7, r6
 	blt	    top_init_bss
 
-/* clear .sram section and unintialized SRAM */
-	movhi   hi(__sram_start),   r0, r1
-	movea   lo(__sram_start),   r1, r1
-	movhi   hi(__sram_end),     r0, r7
-	movea   lo(__sram_end),     r7, r7
-	jr      end_init_sram
-top_init_sram:
-	st.b    r0, 0[r1]
-	add	    1,  r1
-end_init_sram:
-	cmp     r7, r1
-	blt     top_init_sram
+/* clear .dram_bss section */
+	movhi   hi(__dram_bss_start),   r0, r6
+	movea   lo(__dram_bss_start),   r6, r6
+	movhi   hi(__dram_bss_end),     r0, r7
+	movea   lo(__dram_bss_end),     r7, r7
+	jr      end_init_dram_bss
+top_init_dram_bss:
+	st.b    r0, 0[r6]
+	add	    1,  r6
+end_init_dram_bss:
+	cmp     r7, r6
+	blt     top_init_dram_bss
 
+/* clear .sram_bss section */
+	movhi   hi(__sram_bss_start),   r0, r6
+	movea   lo(__sram_bss_start),   r6, r6
+	movhi   hi(__sram_bss_end),     r0, r7
+	movea   lo(__sram_bss_end),     r7, r7
+	jr      end_init_sram_bss
+top_init_sram_bss:
+	st.b    r0, 0[r6]
+	add	    1,  r6
+end_init_sram_bss:
+	cmp     r7, r6
+	blt     top_init_sram_bss
+
+/* clean psw */
+	ldsr	r0, psw
 /* disable-clear-enable cache GCC 4.7 */
-	ldsr	r0, sr5
     ldsr    r0, chcw
+    mov     1, r1
+    ldsr    r1, chcw
     mov     2, r1
     ldsr    r1, chcw
 
 /* setup sp, fp, gp, and tp */
-	movhi	hi(__stack),r0,sp
-	movea	lo(__stack),sp,sp
+	movhi	hi(__stack), r0,sp
+	movea	lo(__stack), sp,sp
 
 	movhi	hi(__gp), r0, gp
 	movea   lo(__gp), gp, gp
 
-	movhi	hi(__tp),r0,tp
+	movhi	hi(__tp), r0,tp
 	movea   lo(__tp), tp, tp
 
+__call_main:
 /* long call main function */
 	movhi	hi(__end),r0,lp
 	movea	lo(__end),lp,lp
@@ -128,7 +177,7 @@ __interrupt_handler:
 	.global	__interrupt_handler_prolog
 
 __interrupt_handler_prolog:
-	addi	-0x0048,sp,sp
+	addi	-0x0050,sp,sp
 	st.w	lp,0x0000[sp]
 	st.w	r30,0x0004[sp]
 	st.w	r19,0x0008[sp]
@@ -147,8 +196,12 @@ __interrupt_handler_prolog:
 	st.w	r6,0x003c[sp]
 	st.w	r2,0x0040[sp]
 	st.w	r1,0x0044[sp]
-	movhi	hi(_key_vector),r0,r1
-	movea	lo(_key_vector),r1,r1
+	stsr	eipc,r1
+	st.w	r1,0x0048[sp]
+	stsr	eipsw,r1
+	st.w	r1,0x004c[sp]
+	movhi	hi(_keyVector),r0,r1
+	movea	lo(_keyVector),r1,r1
 	stsr	sr5,r6
 	shr	    0x0E,r6
 	andi	0x003C,r6,r6
@@ -177,8 +230,12 @@ __interrupt_handler_epilogue:
 	ld.w	0x0038[sp],r7
 	ld.w	0x003c[sp],r6
 	ld.w	0x0040[sp],r2
+	ld.w	0x0048[sp],r1
+	ldsr	r1,eipc
+	ld.w	0x004c[sp],r1
+	ldsr	r1,eipsw
 	ld.w	0x0044[sp],r1
-	addi	0x0048,sp,sp
+	addi	0x0050,sp,sp
 	reti
 
 	.section ".vbvectors","ax"
@@ -260,4 +317,3 @@ _interrupt_table:
 	jmp	    [r1]
 	.fill	0x06
 
-	

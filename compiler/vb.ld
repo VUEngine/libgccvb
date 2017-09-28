@@ -7,9 +7,10 @@ SEARCH_DIR(.);
 
 MEMORY
 {
-    ram	(!r)    : ORIGIN =  0x05000000, LENGTH = 64k /*64k*/
-    sram (rw)   : ORIGIN =  0x06000000, LENGTH = 8M
-    rom	(rx)    : ORIGIN =  0x07000000, LENGTH = 16M
+    wram    (!r)    : ORIGIN =  0x05000000, LENGTH = 64k /*64k*/
+    dram    (!r)    : ORIGIN =  0x0003D800, LENGTH = 0k
+    sram    (!r)    : ORIGIN =  0x06000000, LENGTH = 16M
+    rom     (rx)    : ORIGIN =  0x07000000, LENGTH = 16M
 }
 
 /*
@@ -18,9 +19,10 @@ Handlers as system reset
 */
 
 __text_vma = ORIGIN(rom);
-__data_vma = ORIGIN(ram);
+__data_vma = ORIGIN(wram);
 __sram_vma = ORIGIN(sram);
-__stack = ORIGIN(ram) + LENGTH(ram) - 64;
+__dram_vma = ORIGIN(dram);
+__stack = ORIGIN(wram) + LENGTH(wram) - 64;
 
 SECTIONS
 {
@@ -39,43 +41,61 @@ SECTIONS
     v = .;
 
     /* Ram memory */
-
-    __data_start = .;
-    .data __data_vma : AT(__data_start)
+    __data_lma = .;
+    .data __data_vma : AT(__data_lma)
     {
+    	PROVIDE (__data_start = .);
         *(.data*)
-    } >ram = 0xFF
+    } >wram = 0xFF
 
-    .sdata :
+    .sdata ALIGN(2):
     {
     	PROVIDE (__gp = . + 0x8000);
         *(.sdata*)
-    } >ram = 0xFF
-    __data_end = .;
+    	PROVIDE (__data_end = .);
+    } >wram = 0xFF
 
-    __bss_start = .;
+    .dram_data __dram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata))
+    {
+    	PROVIDE (__dram_data_start = .);
+        *(.dram_data*)
+    	PROVIDE (__dram_data_end = .);
+    } >dram = 0xFF
+
+    .sram_data __sram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata) + SIZEOF(.dram_data)) SUBALIGN(2)
+    {
+    	PROVIDE (__sram_data_start = .);
+        *(.sram_data*)
+    	PROVIDE (__sram_data_end = .);
+    } >sram = 0xFF
+
     .sbss (NOLOAD):
     {
+    	PROVIDE (__bss_start = .);
         *(.sbss*)
         *(.scommon*)
-    } >ram = 0xFF
+    } >wram = 0xFF
 
     .bss (NOLOAD):
     {
         *(.bss*)
         *(COMMON)
-    } >ram = 0xFF
-    __bss_end = .;
+    	PROVIDE (__bss_end = .);
+    } >wram = 0xFF
+
+    .dram_bss (NOLOAD):
+    {
+        PROVIDE(__dram_bss_start = .);
+        *(.dram_bss*)
+        PROVIDE(__dram_bss_end = .);
+    } >dram = 0xFF
 
     /* SRAM Work RAM */
-    .sram (NOLOAD):
+    .sram_bss (NOLOAD): SUBALIGN(2)
     {
-        . = ALIGN(4);
-        PROVIDE(__sram_start = .);
-        . = ALIGN(4);
-        *(.sram*)
-        . = ALIGN(4);
-        PROVIDE(__sram_end = .);
+        PROVIDE(__sram_bss_start = .);
+        *(.sram_bss*)
+        PROVIDE(__sram_bss_end = .);
     } >sram
 
     /* Prevent overlaps with vbvectors */

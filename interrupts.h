@@ -5,11 +5,11 @@
 #include "types.h"
 
 
-extern u32 key_vector;
-extern u32 tim_vector;
-extern u32 cro_vector;
-extern u32 com_vector;
-extern u32 vpu_vector;
+extern u32 keyVector;
+extern u32 timVector;
+extern u32 croVector;
+extern u32 comVector;
+extern u32 vpuVector;
 
 
 #endif
