@@ -1,12 +1,8 @@
-#Makefile taken from Wikipedia.org
-#
 # Specify the main target
 TARGET = libgccvb
 
 # Default build type
-#TYPE = debug
 TYPE = release
-#TYPE = preprocessor
 
 LIBGCCVB = $(ENGINE_FOLDER)
 

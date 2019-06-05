@@ -90,16 +90,16 @@ DFILES := $(addprefix $(STORE)/,$(SOURCE:.c=.d))
 
 all: $(TARGET).vb
 
-$(TARGET).vb: main.elf
+$(TARGET).vb: $(BUILD_DIR)/main.elf
 	@echo Creating $@
-	@$(OBJCOPY) -O binary main.elf $@
+	@$(OBJCOPY) -O binary $(BUILD_DIR)/main.elf $@
 	@echo $(TARGET).vb done
 #	@echo Generating assembler code
-#	@$(OBJDUMP) -t main.elf > sections.txt
-#	@$(OBJDUMP) -S main.elf > machine.asm
+#	@$(OBJDUMP) -t $(BUILD_DIR)/main.elf > sections.txt
+#	@$(OBJDUMP) -S $(BUILD_DIR)/main.elf > machine.asm
 	
 
-main.elf: dirs $(C_OBJECTS) $(ASM_OBJECTS)
+$(BUILD_DIR)/main.elf: dirs $(C_OBJECTS) $(ASM_OBJECTS)
 		@echo Linking $(TARGET).
 		@$(GCC) -o $@ -nostartfiles $(C_OBJECTS) $(ASM_OBJECTS) $(LDPARAM) \
 			$(foreach LIBRARY, $(LIBS),-l$(LIBRARY)) $(foreach LIB,$(LIBPATH),-L$(LIB))
