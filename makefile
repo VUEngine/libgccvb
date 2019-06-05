@@ -8,7 +8,7 @@ TARGET = libgccvb
 TYPE = release
 #TYPE = preprocessor
 
-LIBGCCVB = $(VBDE)/libs/libgccvb
+LIBGCCVB = $(ENGINE_FOLDER)
 
 # Which directories contain source files
 DIRS := $(shell find $(LIBGCCVB) -type d -print)

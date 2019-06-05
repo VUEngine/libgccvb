@@ -13,7 +13,7 @@ TYPE = release
 #TYPE = preprocessor
 
 # Libgccvb's home
-LIBGCCVB_PATH = $(VBDE)/libs/libgccvb
+LIBGCCVB_PATH = $(ENGINE_FOLDER)
 
 # Which directories contain source files
 DIRS := $(shell find . $(LIBGCCVB_PATH) -path ./build -prune -o -type d -print)
@@ -37,7 +37,7 @@ endif
 
 ifeq ($(TYPE), release)
 LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
-CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(GAME_ESSENTIALS) -I$(VBDE)/libs/libgccvb/
+CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(GAME_ESSENTIALS) -I$(ENGINE_FOLDER)/
 MACROS = NDEBUG
 endif
 
