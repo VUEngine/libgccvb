@@ -1,6 +1,3 @@
-#Makefile taken from Wikipedia.org
-#
-
 # Specify the main target
 BUILD_DIR = build
 
@@ -8,25 +5,21 @@ BUILD_DIR = build
 TARGET = $(BUILD_DIR)/output
 
 # Default build type
-#TYPE = debug
 TYPE = release
-#TYPE = preprocessor
 
 # Libgccvb's home
 LIBGCCVB_PATH = $(ENGINE_FOLDER)
 
 # Which directories contain source files
-DIRS := $(shell find . $(LIBGCCVB_PATH) -path ./build -prune -o -type d -print)
+DIRS := $(shell find . $(LIBGCCVB_PATH)/source -path ./build -prune -o -type d -print)
 		
 # Which libraries are linked
 LIBS =
-ROMHEADER=lib/vb.hdr
 
 # Dynamic libraries
 DLIBS =
 
-
-GAME_ESSENTIALS = -include $(LIBGCCVB_PATH)/libgccvb.h 
+GAME_ESSENTIALS = -include $(LIBGCCVB_PATH)/source/libgccvb.h 
 
 # The next blocks change some variables depending on the build type
 ifeq ($(TYPE),debug)
@@ -39,12 +32,6 @@ ifeq ($(TYPE), release)
 LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
 CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(GAME_ESSENTIALS) -I$(ENGINE_FOLDER)/
 MACROS = NDEBUG
-endif
-
-ifeq ($(TYPE),preprocessor)
-LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
-CCPARAM = -nodefaultlibs -mv810 -Wall -Winline $(GAME_ESSENTIALS) -E
-MACROS = __DEBUG
 endif
 
 # Add directories to the include and library paths
@@ -64,7 +51,7 @@ OBJDUMP = v810-objdump
 # Where to store object and dependancy files.
 STORE = $(BUILD_DIR)/$(TYPE)
 
-# Makes a list of the source (.cpp) files.
+# Makes a list of the source (.c) files.
 SOURCE := $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c))
 
 # Makes a list of the source (.s) files.

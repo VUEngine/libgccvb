@@ -7,10 +7,11 @@ SEARCH_DIR(.);
 
 MEMORY
 {
-    wram    (!r)    : ORIGIN =  0x05000000, LENGTH = 64k /*64k*/
-    dram    (!r)    : ORIGIN =  0x0003D800, LENGTH = 0k
-    sram    (!r)    : ORIGIN =  0x06000000, LENGTH = 16M
-    rom     (rx)    : ORIGIN =  0x07000000, LENGTH = 16M
+	dram (!r) : ORIGIN = 0x00037800, LENGTH = 24k
+	wram (!r) : ORIGIN = 0x05000000, LENGTH = 64k
+	exp  (r)  : ORIGIN = 0x04000000, LENGTH = 16M
+	sram (!r) : ORIGIN = 0x06000000, LENGTH = 16M
+	rom  (rx) : ORIGIN = 0x07000000, LENGTH = 16M
 }
 
 /*
@@ -18,106 +19,127 @@ If not defined, define interrupt
 Handlers as system reset
 */
 
-__text_vma = ORIGIN(rom);
-__data_vma = ORIGIN(wram);
-__sram_vma = ORIGIN(sram);
-__dram_vma = ORIGIN(dram);
+__dramVma = ORIGIN(dram);
+__dataVma = ORIGIN(wram);
+__expVma = ORIGIN(exp);
+__sramVma = ORIGIN(sram);
+__textVma = ORIGIN(rom);
 __stack = ORIGIN(wram) + LENGTH(wram) - 64;
 
 SECTIONS
 {
-    /* Read-only sections, merged into text segment: */
-    .text __text_vma :
-    {
-    	PROVIDE (__tp = .);
-        *(.text*)
-    } >rom = 0xFF
+	/* Read-only sections, merged into text segment: */
+	.expdata __expVma (NOLOAD):
+	{
+		PROVIDE (__expDataStart = .);
+		*(.expdata*)
+		PROVIDE (__expDataEnd = .);
+	} >exp = 0xFF
 
-    .rodata :
-    {
-        *(.rodata*)
-    } >rom = 0xFF
+	.text __textVma :
+	{
+		PROVIDE (__textStart = .);
+		*(.text*)
+		PROVIDE (__textEnd = .);
+	} >rom = 0xFF
 
-    v = .;
+	.rodata :
+	{
+		PROVIDE (__stringsStart = .);
+		*(.strings*)
+		PROVIDE (__stringsEnd = .);
+		*(.rodata*)
+	} >rom = 0xFF
 
-    /* Ram memory */
-    __data_lma = .;
-    .data __data_vma : AT(__data_lma)
-    {
-    	PROVIDE (__data_start = .);
-        *(.data*)
-    } >wram = 0xFF
+	v = .;
 
-    .sdata ALIGN(2):
-    {
-    	PROVIDE (__gp = . + 0x8000);
-        *(.sdata*)
-    	PROVIDE (__data_end = .);
-    } >wram = 0xFF
+	/* Ram memory */
+	__dataLma = .;
+	.data __dataVma : AT(__dataLma)
+	{
+		PROVIDE (__dataStart = .);
+		*(.data*)
+	} >wram = 0xFF
 
-    .dram_data __dram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata))
-    {
-    	PROVIDE (__dram_data_start = .);
-        *(.dram_data*)
-    	PROVIDE (__dram_data_end = .);
-    } >dram = 0xFF
+	.sdata ALIGN(2):
+	{
+		PROVIDE (__gp = . + 0x8000);
+		*(.sdata*)
+		PROVIDE (__dataEnd = .);
+	} >wram = 0xFF
 
-    .sram_data __sram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata) + SIZEOF(.dram_data)) SUBALIGN(2)
-    {
-    	PROVIDE (__sram_data_start = .);
-        *(.sram_data*)
-    	PROVIDE (__sram_data_end = .);
-    } >sram = 0xFF
+	.dram_data __dramVma : AT(v + SIZEOF(.data) + SIZEOF(.sdata))
+	{
+		PROVIDE (__dram_dirty_start = .);
+		*(.dram_dirty*)
+		PROVIDE (__dramDataStart = .);
+		*(.dram_data*)
+		PROVIDE (__dram_dataEnd = .);
+	} >dram = 0xFF
 
-    .sbss (NOLOAD):
-    {
-    	PROVIDE (__bss_start = .);
-        *(.sbss*)
-        *(.scommon*)
-    } >wram = 0xFF
+	.sram_data __sramVma : AT(v + SIZEOF(.data) + SIZEOF(.sdata) + SIZEOF(.dram_data)) SUBALIGN(2)
+	{
+		PROVIDE (__sramDataStart = .);
+		*(.sram_data*)
+		PROVIDE (__sramDataEnd = .);
+	} >sram = 0xFF
 
-    .bss (NOLOAD):
-    {
-        *(.bss*)
-        *(COMMON)
-    	PROVIDE (__bss_end = .);
-    } >wram = 0xFF
+	.sbss (NOLOAD):
+	{
+		PROVIDE (__bssStart = .);
+		*(.sbss*)
+		*(.scommon*)
+	} >wram = 0xFF
 
-    .dram_bss (NOLOAD):
-    {
-        PROVIDE(__dram_bss_start = .);
-        *(.dram_bss*)
-        PROVIDE(__dram_bss_end = .);
-    } >dram = 0xFF
+	.bss (NOLOAD):
+	{
+		*(.bss*)
+		*(COMMON)
+		PROVIDE (__bssEnd = .);
+	} >wram = 0xFF
 
-    /* SRAM Work RAM */
-    .sram_bss (NOLOAD): SUBALIGN(2)
-    {
-        PROVIDE(__sram_bss_start = .);
-        *(.sram_bss*)
-        PROVIDE(__sram_bss_end = .);
-    } >sram
+	.dram_bss (NOLOAD): AT(__dram_dataEnd)
+	{
+		PROVIDE(__dramBssStart = .);
+		*(.dram_bss*)
+		PROVIDE(__dramBssEnd = .);
+	} >dram = 0xFF
 
-    /* Prevent overlaps with vbvectors */
-    /* The use of new variables is because GCC 4.7's linker doesn't override the v value */
-    v1 = v + SIZEOF(.data) + SIZEOF(.sdata);
+	/* SRAM Work RAM */
+	.sram_bss (NOLOAD): SUBALIGN(2)
+	{
+		PROVIDE(__sramBssStart = .);
+		*(.sram_bss*)
+		PROVIDE(__sramBssEnd = .);
+	} >sram
 
-    /* Compute the vector address */
-    /* This promotes . to a power of two */
+	/* Prevent overlaps with vbvectors */
+	/* The use of new variables is because GCC 4.7's linker doesn't override the v value */
+	v1 = v + SIZEOF(.data) + SIZEOF(.sdata);
 
-    v2 = v1 + 0x21F; 		/* add size of jump table */
-    v3 = v2 & 0x00FFFFFF;
-    v4 = v3 | (v3 >> 1);
-    v5 = v4 | (v4 >> 2);
-    v6 = v5 | (v5 >> 4);
-    v7 = v6 | (v6 >> 8);
-    v8 = v7 | (v7 >> 16);
+	/* Compute the vector address */
+	/* This promotes . to a power of two */
 
-    __vbvectors_vma = __text_vma + v8 - 0x21F;
+	v2 = v1 + 0x1FF; 		/* add size of jump table */
+	v3 = v2 & 0x00FFFFFF;
+	v4 = v3 | (v3 >> 1);
+	v5 = v4 | (v4 >> 2);
+	v6 = v5 | (v5 >> 4);
+	v7 = v6 | (v6 >> 8);
+	v8 = v7 | (v7 >> 16);
 
-    /* Place interrupt and reset vector at end of rom */
-    .vbvectors __vbvectors_vma :
-    {
-        KEEP (*(.vbvectors))
-    } >rom = 0xFF
+	__vbvectors_vma = __textVma + v8 - 0x1FF;
+	__rominfo_vma = __vbvectors_vma - 0x20;
+
+	/* Place rom's info before the interrupt vectors */
+	.rominfo __rominfo_vma :
+	{
+		KEEP (*(.rominfo))
+	} >rom = 0xFF
+
+	/* Place interrupt and reset vector at end of rom */
+	.vbvectors __vbvectors_vma :
+	{
+		KEEP (*(.vbvectors))
+	} >rom = 0xFF
 }

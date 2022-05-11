@@ -1,5 +1,0 @@
-# Minimal makefile, only suited for projects with a single c file
-
-all:
-	v810-gcc *.c -o build/main.elf -Wall -nodefaultlibs -mv810 -T$(ENGINE_FOLDER)/compiler/vb.ld -I$(ENGINE_FOLDER)
-	v810-objcopy -O binary build/main.elf output.vb

@@ -7,7 +7,7 @@ TYPE = release
 LIBGCCVB = $(ENGINE_FOLDER)
 
 # Which directories contain source files
-DIRS := $(shell find $(LIBGCCVB) -type d -print)
+DIRS := $(shell find $(LIBGCCVB)/source -type d -print)
 		
 # Which libraries are linked
 LIBS =
@@ -15,7 +15,7 @@ LIBS =
 DLIBS =
 
 # Obligatory headers
-ESSENTIALS =  -include $(LIBGCCVB)/libgccvb.h								\
+ESSENTIALS =  -include $(LIBGCCVB)/source/libgccvb.h
 
 # The next blocks change some variables depending on the build type
 ifeq ($(TYPE), debug)
@@ -30,18 +30,8 @@ CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(ESSENTIA
 MACROS = NDEBUG
 endif
 
-
-ifeq ($(TYPE), preprocessor)
-LDPARAM =  
-CCPARAM = -nodefaultlibs -mv810 -Wall -O -Winline $(ESSENTIALS) -E -P
-MACROS = __DEBUG
-endif
-
-
 # Add directories to the include and library paths
-
 INCPATH := $(shell find $(LIBGCCVB) -type d -print)
-						 
 
 # Which files to add to backups, apart from the source code
 EXTRA_FILES = makefile
@@ -55,7 +45,7 @@ AR = v810-ar
 # Where to store object and dependancy files.
 STORE = .make-$(TYPE)
 
-# Makes a list of the source (.cpp) files.
+# Makes a list of the source (.c) files.
 SOURCE := $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c))
 
 # List of header files.
