@@ -19,23 +19,31 @@ LIBS =
 # Dynamic libraries
 DLIBS =
 
-GAME_ESSENTIALS = -include $(LIBGCCVB_PATH)/source/libgccvb.h 
+ESSENTIAL_INCLUDES = -include libgccvb.h 
 
 # The next blocks change some variables depending on the build type
 ifeq ($(TYPE),debug)
 LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
-CCPARAM = -fno-builtin -ffreestanding -nodefaultlibs -mv810 -O -Wall $(GAME_ESSENTIALS) 
+CCPARAM = -fno-builtin -ffreestanding -nodefaultlibs -mv810 -O -Wall $(ESSENTIAL_INCLUDES) 
 MACROS = __DEBUG
+endif
+
+ifeq ($(TYPE), beta)
+LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
+CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(ESSENTIAL_INCLUDES) -I$(ENGINE_FOLDER)/
+MACROS = NDEBUG
 endif
 
 ifeq ($(TYPE), release)
 LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
-CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(GAME_ESSENTIALS) -I$(ENGINE_FOLDER)/
+CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(ESSENTIAL_INCLUDES) -I$(ENGINE_FOLDER)/
 MACROS = NDEBUG
 endif
 
 # Add directories to the include and library paths
-INCPATH_GAME := $(shell find * -type d -print)
+INCLUDE_PATHS = $(shell find $(LIBGCCVB_PATH) -type d -print)
+INCLUDE_PATHS := $(INCLUDE_PATHS) $(shell find assets/ -type d -print)
+INCLUDE_PATHS := $(INCLUDE_PATHS) $(shell find source/ -type d -print)
 
 LIBPATH =
 
@@ -96,7 +104,7 @@ $(BUILD_DIR)/main.elf: dirs $(C_OBJECTS) $(ASM_OBJECTS)
 # outputs assume it will be in the same dir as the source file.
 $(STORE)/%.o: %.c
 		@echo Creating object file for $*...
-		@$(GCC) -Wp,-MD,$(STORE)/$*.dd $(CCPARAM) $(foreach INC, $(INCPATH_GAME),-I$(INC))\
+		@$(GCC) -Wp,-MD,$(STORE)/$*.dd $(CCPARAM) $(foreach INC, $(INCLUDE_PATHS),-I$(INC))\
                 $(foreach MACRO,$(MACROS),-D$(MACRO)) -c $< -o $@
 		@sed -e '1s/^\(.*\)$$/$(subst /,\/,$(dir $@))\1/' $(STORE)/$*.dd > $(STORE)/$*.d
 		@rm -f $(STORE)/$*.dd

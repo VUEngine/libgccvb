@@ -15,6 +15,16 @@ typedef unsigned char 	BYTE;	/* 1               0 ...           255 */
 typedef unsigned short 	HWORD;	/* 2               0 ...        65,535 */
 typedef unsigned long 	WORD;	/* 4		       0 ... 4,294,967,295 */
 
+// VUEngine type names for compatiblity
+typedef unsigned char 		uint8;
+typedef unsigned short 		uint16;
+typedef unsigned int 		uint32;
+typedef unsigned long long	uint64;
+
+typedef signed char 		int8;
+typedef signed short 		int16;
+typedef signed int	 		int32;
+typedef signed long long 	int64;
 
 // for fixed point math
 #define f8 			s8
