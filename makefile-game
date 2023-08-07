@@ -8,7 +8,7 @@ TARGET = $(BUILD_DIR)/output
 TYPE = release
 
 # Libgccvb's home
-LIBGCCVB_PATH = $(LIBS_FOLDER)
+LIBGCCVB_PATH = $(ENGINE_FOLDER)
 
 # Which directories contain source files
 DIRS = $(shell find . -path ./build -prune -o -type d -print)
