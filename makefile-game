@@ -42,10 +42,11 @@ MACROS = NDEBUG
 endif
 
 # Add directories to the include and library paths
-INCLUDE_PATHS = $(shell find $(LIBGCCVB_PATH) -type d -print)
-INCLUDE_PATHS := $(INCLUDE_PATHS) $(shell find assets/ -type d -print)
+# First, include the game's headers to override 
+INCLUDE_PATHS = $(shell find headers/ -type d -print)
+INCLUDE_PATHS := $(INCLUDE_PATHS)  $(shell find $(LIBGCCVB_PATH) -type d -print)
+INCLUDE_PATHS := $(INCLUDE_PATHS)  $(shell find assets/ -type d -print)
 INCLUDE_PATHS := $(INCLUDE_PATHS) $(shell find source/ -type d -print)
-INCLUDE_PATHS := $(INCLUDE_PATHS) $(shell find headers/ -type d -print)
 
 LIBPATH =
 

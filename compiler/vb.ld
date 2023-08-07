@@ -113,7 +113,8 @@ SECTIONS
     v7 = v6 | (v6 >> 8);
     v8 = v7 | (v7 >> 16);
 
-    __vbvectors_vma = __text_vma + v8 - 0x21F;
+    __vbvectors_vma = __text_vma + v8 - 0x1FF;
+
 	__rominfo_vma = __vbvectors_vma - 0x20;
 
     /* Place rom's info before the interrupt vectors */
