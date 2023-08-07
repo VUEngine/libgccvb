@@ -114,6 +114,14 @@ SECTIONS
     v8 = v7 | (v7 >> 16);
 
     __vbvectors_vma = __text_vma + v8 - 0x21F;
+	__rominfo_vma = __vbvectors_vma - 0x20;
+
+    /* Place rom's info before the interrupt vectors */
+    .rominfo __rominfo_vma :
+    {
+        KEEP (*(.rominfo))
+    } >rom = 0xFF
+
 
     /* Place interrupt and reset vector at end of rom */
     .vbvectors __vbvectors_vma :
