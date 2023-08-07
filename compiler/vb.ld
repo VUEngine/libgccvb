@@ -7,9 +7,8 @@ SEARCH_DIR(.);
 
 MEMORY
 {
-    dram    (!r)    : ORIGIN =  0x0003A000, LENGTH = 14k
-    wram    (!r)    : ORIGIN =  0x05000000, LENGTH = 64k
-    exp     (r)     : ORIGIN =  0x04000000, LENGTH = 16M
+    wram    (!r)    : ORIGIN =  0x05000000, LENGTH = 64k /*64k*/
+    dram    (!r)    : ORIGIN =  0x0003D800, LENGTH = 0k
     sram    (!r)    : ORIGIN =  0x06000000, LENGTH = 16M
     rom     (rx)    : ORIGIN =  0x07000000, LENGTH = 16M
 }
@@ -19,28 +18,19 @@ If not defined, define interrupt
 Handlers as system reset
 */
 
-__dramVma = ORIGIN(dram);
-__dataVma = ORIGIN(wram);
-__expVma = ORIGIN(exp);
-__sramVma = ORIGIN(sram);
-__textVma = ORIGIN(rom);
+__text_vma = ORIGIN(rom);
+__data_vma = ORIGIN(wram);
+__sram_vma = ORIGIN(sram);
+__dram_vma = ORIGIN(dram);
 __stack = ORIGIN(wram) + LENGTH(wram) - 64;
 
 SECTIONS
 {
     /* Read-only sections, merged into text segment: */
-	.expdata __expVma (NOLOAD):
-	{
-		PROVIDE (__expDataStart = .);
-		*(.expdata*)
-		PROVIDE (__expDataEnd = .);
-	} >exp = 0xFF
-
-    .text __textVma :
+    .text __text_vma :
     {
-    	PROVIDE (__textStart = .);
+    	PROVIDE (__tp = .);
         *(.text*)
-		PROVIDE (__textEnd = .);
     } >rom = 0xFF
 
     .rodata :
@@ -48,13 +38,13 @@ SECTIONS
         *(.rodata*)
     } >rom = 0xFF
 
-    v = . + 0x20;
+    v = .;
 
     /* Ram memory */
-    __dataLma = .;
-    .data __dataVma : AT(__dataLma)
+    __data_lma = .;
+    .data __data_vma : AT(__data_lma)
     {
-    	PROVIDE (__dataStart = .);
+    	PROVIDE (__data_start = .);
         *(.data*)
     } >wram = 0xFF
 
@@ -62,28 +52,26 @@ SECTIONS
     {
     	PROVIDE (__gp = . + 0x8000);
         *(.sdata*)
-    	PROVIDE (__dataEnd = .);
+    	PROVIDE (__data_end = .);
     } >wram = 0xFF
 
-    .dram_data __dramVma : AT(v + SIZEOF(.data) + SIZEOF(.sdata))
+    .dram_data __dram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata))
     {
-		PROVIDE (__dram_dirty_start = .);
-		*(.dram_dirty*)
-    	PROVIDE (__dramDataStart = .);
+    	PROVIDE (__dram_data_start = .);
         *(.dram_data*)
-    	PROVIDE (__dram_dataEnd = .);
+    	PROVIDE (__dram_data_end = .);
     } >dram = 0xFF
 
-    .sram_data __sramVma : AT(v + SIZEOF(.data) + SIZEOF(.sdata) + SIZEOF(.dram_data)) SUBALIGN(2)
+    .sram_data __sram_vma : AT(v + SIZEOF(.data) + SIZEOF(.sdata) + SIZEOF(.dram_data)) SUBALIGN(2)
     {
-    	PROVIDE (__sramDataStart = .);
+    	PROVIDE (__sram_data_start = .);
         *(.sram_data*)
-    	PROVIDE (__sramDataEnd = .);
+    	PROVIDE (__sram_data_end = .);
     } >sram = 0xFF
 
     .sbss (NOLOAD):
     {
-    	PROVIDE (__bssStart = .);
+    	PROVIDE (__bss_start = .);
         *(.sbss*)
         *(.scommon*)
     } >wram = 0xFF
@@ -92,22 +80,22 @@ SECTIONS
     {
         *(.bss*)
         *(COMMON)
-    	PROVIDE (__bssEnd = .);
+    	PROVIDE (__bss_end = .);
     } >wram = 0xFF
 
-	.dram_bss (NOLOAD): AT(__dram_dataEnd)
+    .dram_bss (NOLOAD):
     {
-        PROVIDE(__dramBssStart = .);
+        PROVIDE(__dram_bss_start = .);
         *(.dram_bss*)
-        PROVIDE(__dramBssEnd = .);
+        PROVIDE(__dram_bss_end = .);
     } >dram = 0xFF
 
     /* SRAM Work RAM */
     .sram_bss (NOLOAD): SUBALIGN(2)
     {
-        PROVIDE(__sramBssStart = .);
+        PROVIDE(__sram_bss_start = .);
         *(.sram_bss*)
-        PROVIDE(__sramBssEnd = .);
+        PROVIDE(__sram_bss_end = .);
     } >sram
 
     /* Prevent overlaps with vbvectors */
@@ -117,7 +105,7 @@ SECTIONS
     /* Compute the vector address */
     /* This promotes . to a power of two */
 
-    v2 = v1 + 0x1FF; 		/* add size of jump table */
+    v2 = v1 + 0x21F; 		/* add size of jump table */
     v3 = v2 & 0x00FFFFFF;
     v4 = v3 | (v3 >> 1);
     v5 = v4 | (v4 >> 2);
@@ -125,14 +113,7 @@ SECTIONS
     v7 = v6 | (v6 >> 8);
     v8 = v7 | (v7 >> 16);
 
-    __vbvectors_vma = __textVma + v8 - 0x1FF;
-    __rominfo_vma = __vbvectors_vma - 0x20;
-
-    /* Place rom's info before the interrupt vectors */
-    .rominfo __rominfo_vma :
-    {
-        KEEP (*(.rominfo))
-    } >rom = 0xFF
+    __vbvectors_vma = __text_vma + v8 - 0x21F;
 
     /* Place interrupt and reset vector at end of rom */
     .vbvectors __vbvectors_vma :

@@ -8,10 +8,11 @@ TARGET = $(BUILD_DIR)/output
 TYPE = release
 
 # Libgccvb's home
-LIBGCCVB_PATH = $(ENGINE_FOLDER)
+LIBGCCVB_PATH = $(LIBS_FOLDER)
 
 # Which directories contain source files
-DIRS := $(shell find . $(LIBGCCVB_PATH)/source -path ./build -prune -o -type d -print)
+DIRS = $(shell find . -path ./build -prune -o -type d -print)
+DIRS := $(DIRS) $(shell find $(LIBGCCVB_PATH) -path ./build -prune -o -type d -print)
 		
 # Which libraries are linked
 LIBS =
