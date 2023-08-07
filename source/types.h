@@ -26,6 +26,10 @@ typedef signed short 		int16;
 typedef signed int	 		int32;
 typedef signed long long 	int64;
 
+// define of boolean type
+typedef uint8				bool;
+enum { false, true };
+
 // for fixed point math
 #define f8 			s8
 #define f16 		s16
