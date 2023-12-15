@@ -22,9 +22,9 @@ typedef const struct ROMInfo
 
 ROMInfo romInfo __attribute__((section(".rominfo"))) =
 {
-    GAME_TITLE,
+    __GAME_TITLE,
     {0x00, 0x00, 0x00, 0x00, 0x00},
-    MAKER_CODE,
-    GAME_CODE,
-    ROM_VERSION
+    __MAKER_CODE,
+    __GAME_CODE,
+    __ROM_VERSION
 };

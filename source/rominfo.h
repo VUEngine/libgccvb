@@ -3,13 +3,13 @@
 
 
 // game title (20 chars) 	 ####################
-#define GAME_TITLE			"GAME TITLE          "
+#define __GAME_TITLE		"GAME TITLE          "
 // maker code (2 chars)		 ##
-#define MAKER_CODE			"VB"
+#define __MAKER_CODE		"VB"
 // game code (4 chars)		 ####
-#define GAME_CODE			"LGVB"
+#define __GAME_CODE			"VVBE"
 // revision (1.x)			 #
-#define ROM_VERSION			 0
+#define __ROM_VERSION		 0
 
 
 #endif
