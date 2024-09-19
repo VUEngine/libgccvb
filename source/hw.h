@@ -5,7 +5,7 @@
 #include "types.h"
 
 
-extern u8* const HW_REGS;
+extern volatile u8* const HW_REGS;
 
 /***** Hardware Register Mnemonics *****/
 #define	CCR		0x00	// Communication Control Register	(0x0200 0000)
