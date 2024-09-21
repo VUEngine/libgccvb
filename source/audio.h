@@ -31,13 +31,13 @@ typedef struct SOUNDREG
 	u8 spacer8[35];
 } SOUNDREG;
 
-extern u8* const WAVEDATA1;
-extern u8* const WAVEDATA2;
-extern u8* const WAVEDATA3;
-extern u8* const WAVEDATA4;
-extern u8* const WAVEDATA5;
-extern u8* const MODDATA;
-extern SOUNDREG* const SND_REGS;
+extern volatile u8* const WAVEDATA1;
+extern volatile u8* const WAVEDATA2;
+extern volatile u8* const WAVEDATA3;
+extern volatile u8* const WAVEDATA4;
+extern volatile u8* const WAVEDATA5;
+extern volatile u8* const MODDATA;
+extern volatile SOUNDREG* const SND_REGS;
 #define SSTOP				*(u8*)0x01000580
 
 /***** Sound Register Mnemonics *****/

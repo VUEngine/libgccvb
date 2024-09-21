@@ -4,14 +4,14 @@
 
 
 /***** Display RAM *****/
-u32* const	L_FRAME0 =	(u32*)0x00000000;	// Left Frame Buffer 0
-u32* const	L_FRAME1 =	(u32*)0x00008000;	// Left Frame Buffer 1
-u32* const	R_FRAME0 =	(u32*)0x00010000;	// Right Frame Buffer 0
-u32* const	R_FRAME1 =	(u32*)0x00018000;	// Right Frame Buffer 1
-u16* const	BGMM =		(u16*)BGMMBase;		// Pointer to BGMM
-u16* const	WAM =		(u16*)WAMBase;		// Pointer to WAM
-u16* const	CLMN_TBL =	(u16*)0x0003DC00;	// Base address of Column Tables
-u16* const	OAM =		(u16*)OAMBase;		// Pointer to OAM
+volatile u32* const	L_FRAME0 =	(u32*)0x00000000;	// Left Frame Buffer 0
+volatile u32* const	L_FRAME1 =	(u32*)0x00008000;	// Left Frame Buffer 1
+volatile u32* const	R_FRAME0 =	(u32*)0x00010000;	// Right Frame Buffer 0
+volatile u32* const	R_FRAME1 =	(u32*)0x00018000;	// Right Frame Buffer 1
+volatile u16* const	BGMM =		(u16*)BGMMBase;		// Pointer to BGMM
+volatile u16* const	WAM =		(u16*)WAMBase;		// Pointer to WAM
+volatile u16* const	CLMN_TBL =	(u16*)0x0003DC00;	// Base address of Column Tables
+volatile u16* const	OAM =		(u16*)OAMBase;		// Pointer to OAM
 
 
 /* Macro to set the brightness registers */
