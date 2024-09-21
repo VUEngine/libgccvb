@@ -5,9 +5,9 @@
 #include "types.h"
 
 
-extern u8* const	EXPANSION;
-extern u8* const	WORKRAM;
-extern u16* const	SAVERAM;
+extern volatile u8* const	EXPANSION;
+extern volatile u8* const	WORKRAM;
+extern volatile u16* const	SAVERAM;
 
 
 /***** Ancillary Functions *****/

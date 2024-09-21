@@ -2,9 +2,9 @@
 #include "mem.h"
 
 
-u8* const	EXPANSION =	(u8*)0x04000000;	// Expansion bus area
-u8* const	WORKRAM =	(u8*)0x05000000;	// Scratchpad RAM; USE WITH CAUTION! (In fact, just leave it alone!)
-u16* const	SAVERAM =	(u16*)0x06000000;	// Cartridge's Battery-backed SRAM
+volatile u8* const	EXPANSION =	(u8*)0x04000000;	// Expansion bus area
+volatile u8* const	WORKRAM =	(u8*)0x05000000;	// Scratchpad RAM; USE WITH CAUTION! (In fact, just leave it alone!)
+volatile u16* const	SAVERAM =	(u16*)0x06000000;	// Cartridge's Battery-backed SRAM
 
 
 /***** Ancillary Functions *****/

@@ -3,7 +3,7 @@
 #include "world.h"
 
 
-WORLD* const WA = (WORLD*)0x0003D800;
+volatile WORLD* const WA = (WORLD*)0x0003D800;
 
 
 /***** World Functions *****/

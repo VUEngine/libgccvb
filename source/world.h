@@ -22,7 +22,7 @@ typedef struct WORLD
 	u16 spacer[5];
 } WORLD;
 
-extern WORLD* const WA;
+extern volatile WORLD* const WA;
 
 /* "vbSetWorld" header flags */
 /* (OR these together to build a World Header) */
