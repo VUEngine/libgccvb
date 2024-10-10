@@ -1,9 +1,8 @@
 #ifndef _LIBGCCVB_RANDOM_H
 #define _LIBGCCVB_RANDOM_H
 
+#include "types.h"
 
-long randseed();
-int randnum(long seed, int randnums);
-
+u32 rng(u32 *seed, u32 max);
 
 #endif
