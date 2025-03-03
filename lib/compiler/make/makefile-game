@@ -24,19 +24,19 @@ ESSENTIAL_INCLUDES = -include libgccvb.h
 
 # The next blocks change some variables depending on the build type
 ifeq ($(TYPE),debug)
-LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
+LDPARAM = -T$(LIBGCCVB_PATH)/lib/compiler/linker/vb.ld -lm
 CCPARAM = -fno-builtin -ffreestanding -nodefaultlibs -mv810 -O -Wall $(ESSENTIAL_INCLUDES) 
 MACROS = __DEBUG
 endif
 
 ifeq ($(TYPE), beta)
-LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
+LDPARAM = -T$(LIBGCCVB_PATH)/lib/compiler/linker/vb.ld -lm
 CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(ESSENTIAL_INCLUDES) -I$(ENGINE_FOLDER)/
 MACROS = NDEBUG
 endif
 
 ifeq ($(TYPE), release)
-LDPARAM = -T$(LIBGCCVB_PATH)/compiler/vb.ld -lm
+LDPARAM = -T$(LIBGCCVB_PATH)/lib/compiler/linker/vb.ld -lm
 CCPARAM = -nodefaultlibs -mv810 -finline-functions -Wall -O3 -Winline $(ESSENTIAL_INCLUDES) -I$(ENGINE_FOLDER)/
 MACROS = NDEBUG
 endif
